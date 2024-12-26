@@ -7,7 +7,7 @@
     "dev": "npx nodemon",
     "typeorm": "typeorm-ts-node-commonjs",
     "build": "tsc",
-    "start": "node dist/src/server.js",
+    "start": "chmod +x dist/src/server.js && node dist/src/server.js",
     "migration": " npm run typeorm migration:run -- -d ./src/config/data-source.ts"
   },
   "keywords": [],
