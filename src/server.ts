@@ -23,6 +23,7 @@ const allowedOrigins = [
     "http://192.168.1.16:4000",
     "http://192.168.1.16:3000",
     ];
+     console.log(allowedOrigins);
 
 const corsOptions = {
     origin: function (origin: string | undefined, callback: (error: Error | null, allow?: boolean) => void) {
