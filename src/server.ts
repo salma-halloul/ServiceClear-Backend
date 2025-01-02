@@ -76,7 +76,7 @@ server.listen(PORT, async () => {
   try {
     await AppDataSource.initialize();
     console.log(`🗄️  Server Fire on http://${HOST}:${PORT}`);
-    console.log("📦 Connected to the database successfully");
+    //console.log("📦 Connected to the database successfully");
     test(); 
   } catch (error) {
     console.error("❌ Error during Data Source initialization:", error);

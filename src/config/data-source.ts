@@ -17,9 +17,17 @@ export const AppDataSource = new DataSource({
     username: process.env.DB_USERNAME,
     password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME,
-    synchronize: true,
+    synchronize: false,
     logging: true,
     entities: [User, Category, Service, Review, Quote, Contact], 
     migrations: [__dirname + "/../migrations/*.js"],
     subscribers: [],
 });
+
+AppDataSource.initialize()
+    .then(() => {
+        console.log("📦 Connected to the database successfully");
+    })
+    .catch((error) => {
+        console.error("❌ Error during Data Source initialization:", error);
+    });
