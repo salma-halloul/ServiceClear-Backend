@@ -79,7 +79,7 @@ export class ReviewController {
     const reviewRepository = AppDataSource.getRepository(Review);
 
     try {
-      const review = await reviewRepository.findOne({ 
+      const review = await reviewRepository.findOne({
         where: { id: reviewId },
       });
 
@@ -87,7 +87,7 @@ export class ReviewController {
         return res.status(404).json({ message: "Review not found" });
       }
 
-      review.status = status;    
+      review.status = status;
       await reviewRepository.save(review);
 
       return res.status(200).json(review);
@@ -95,6 +95,34 @@ export class ReviewController {
       return res.status(500).json({ message: "Error updating review status", error });
     }
   }
+
+
+  static async deleteMultipleReviews(req: Request, res: Response): Promise<Response> {
+    const { ids } = req.body;
+
+    if (!Array.isArray(ids) || ids.length === 0) {
+      return res.status(400).json({ message: "No review IDs provided" });
+    }
+
+    const ReviewRepository = AppDataSource.getRepository(Review);
+
+    try {
+      const Reviews = await ReviewRepository.findByIds(ids);
+
+      if (Reviews.length === 0) {
+        return res.status(404).json({ message: "No Reviews found with the provided IDs" });
+      }
+      
+      await ReviewRepository.remove(Reviews);
+
+      return res.status(200).json({ message: "Reviews deleted successfully", ids });
+    } catch (error: unknown) {
+      console.error('Error in deleteMultipleReviews:', error);
+      const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+      return res.status(500).json({ message: "Error deleting Reviews", error: errorMessage });
+    }
+  }
+
 
 
 

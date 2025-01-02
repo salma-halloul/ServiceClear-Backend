@@ -3,7 +3,7 @@ import { Service } from "./service.entity";
 import { EQuote } from "./enums/EQuote";
 @Entity()
 export class Quote {
-    @PrimaryGeneratedColumn("uuid")
+    @PrimaryGeneratedColumn()
     id: string;
 
     @Column()
@@ -14,6 +14,9 @@ export class Quote {
 
     @Column()
     phonenumber: number;
+
+    @Column({nullable: true})
+    zip: number;
 
     @ManyToMany(() => Service)
     @JoinTable()

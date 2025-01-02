@@ -17,8 +17,10 @@ const app: Application = express();
 const server = http.createServer(app);
 
 const allowedOrigins = [
+    "http://localhost:4000",
+    "http://localhost:4001",
     "http://localhost:3000",
-    "http://localhost:3001"
+    "http://localhost:192.168.1.16:4000",
 ];
 
 const corsOptions = {

@@ -9,5 +9,7 @@ Router.post("/add",  authentification, ReviewController.addReviewByAdmin);
 Router.get("/all", authentification,  ReviewController.getAllReviews);
 Router.patch("/update-status", authentification,ReviewController.updateReviewStatus);
 Router.get("/allvisible", ReviewController.getApprovedReviews);
+Router.delete('/delete',  authentification, ReviewController.deleteMultipleReviews);
+
 
 export { Router as reviewRouter };

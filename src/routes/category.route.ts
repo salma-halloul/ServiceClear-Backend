@@ -8,5 +8,7 @@ Router.post("/create",authentification, CategoryController.createCategory);
 Router.get("/all", CategoryController.getAllCategories);
 Router.put("/update/:id", authentification, CategoryController.updateCategory);
 Router.delete("/delete/:id", authentification,CategoryController.deleteCategory);
+Router.get("/count", CategoryController.countCategoriesInQuotes);
+
 
 export { Router as categoryRouter };

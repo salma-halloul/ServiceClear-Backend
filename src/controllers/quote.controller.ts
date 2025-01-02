@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { AppDataSource } from '../config/data-source';
 import { Service } from '../models/service.entity';
 import { Quote } from '../models/quote.entity';
+import { EQuote } from '../models/enums/EQuote';
 
 
 export class QuoteController {
@@ -118,7 +119,10 @@ export class QuoteController {
         const quoteRepository = AppDataSource.getRepository(Quote);
 
         try {
-            const quote = await quoteRepository.findOne({ where: { id } });
+            const quote = await quoteRepository.findOne({
+              where: { id },
+              relations: ['services'],
+            });
 
             if (!quote) {
                 return res.status(404).json({ message: "Quote not found" });
@@ -134,6 +138,54 @@ export class QuoteController {
             return res.status(500).json({ message: "Internal server error" });
         }
     }
+
+    static async updateQuoteStatus(req: Request, res: Response): Promise<Response> {
+        const { quoteId, status } = req.body;
+    
+        if (!Object.values(EQuote).includes(status)) {
+          return res.status(400).json({ message: "Invalid status" });
+        }
+    
+        const quoteRepository = AppDataSource.getRepository(Quote);
+    
+        try {
+          const quote = await quoteRepository.findOne({
+            where: { id: quoteId },
+            relations: ['services'],
+          });
+    
+          if (!quote) {
+            return res.status(404).json({ message: "Quote not found" });
+          }
+    
+          quote.status = status;
+          await quoteRepository.save(quote);
+    
+          return res.status(200).json(quote);
+        } catch (error) {
+          return res.status(500).json({ message: "Error updating quote status", error });
+        }
+      }
+
+      static async getMonthlyQuotesStatistics(req: Request, res: Response): Promise<Response> {
+        const quoteRepository = AppDataSource.getRepository(Quote);
+    
+        try {
+          const statistics = await quoteRepository
+            .createQueryBuilder("quote")
+            .select("DATE_TRUNC('month', quote.createdAt)", "month")
+            .addSelect("COUNT(*)", "count")
+            .groupBy("month")
+            .orderBy("month")
+            .getRawMany();
+    
+          return res.json(statistics);
+        } catch (error: unknown) {
+          console.error('Error fetching monthly quotes statistics:', error);
+          const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+          return res.status(500).json({ message: "Error fetching monthly quotes statistics", error: errorMessage });
+        }
+      }
 
 
 }

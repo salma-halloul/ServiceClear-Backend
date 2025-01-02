@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { Category } from "../models/category.entity";
 import { AppDataSource } from "../config/data-source";
+import { Quote } from "../models/quote.entity";
 
 export class CategoryController {
   static async createCategory(req: Request, res: Response): Promise<Response> {
@@ -88,4 +89,35 @@ export class CategoryController {
       return res.status(500).json({ message: "Error deleting category", error });
     }
   }
+
+  static async countCategoriesInQuotes(req: Request, res: Response): Promise<Response> {
+    const quoteRepository = AppDataSource.getRepository(Quote);
+
+    try {
+      const quotes = await quoteRepository.find({
+        relations: ["services", "services.categories"]
+      });
+
+      const categoryCountMap: { [key: string]: { name: string, count: number } } = {};
+
+      quotes.forEach(quote => {
+        quote.services.forEach(service => {
+          service.categories.forEach(category => {
+            if (!categoryCountMap[category.id]) {
+              categoryCountMap[category.id] = { name: category.name, count: 0 };
+            }
+            categoryCountMap[category.id].count += 1;
+          });
+        });
+      });
+      const categoryCounts = Object.values(categoryCountMap);
+
+      return res.json(categoryCounts);
+    } catch (error: unknown) {
+      console.error('Error counting categories in quotes:', error);
+      const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+      return res.status(500).json({ message: "Error counting categories in quotes", error: errorMessage });
+    }
+  }
+  
 }

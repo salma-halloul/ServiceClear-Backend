@@ -6,7 +6,7 @@ export class Review {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
+  @Column("float")
   rating: number;
 
   @Column()

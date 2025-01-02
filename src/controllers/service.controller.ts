@@ -9,8 +9,8 @@ export class ServiceController {
     static async createService(req: Request, res: Response): Promise<Response> {
         const { name, description, categoryIds, images, visible} = req.body;
 
-        if ( !name || !description || !categoryIds || !images || !visible) {
-            return res.status(400).json({ message: "Name, description,model ,price and at least one category are required" });
+        if ( !name || !description || !categoryIds || !images || visible === undefined) {
+            return res.status(400).json({ message: "Name, description, and at least one category are required" });
         }
         
         const ServiceRepository = AppDataSource.getRepository(Service);
