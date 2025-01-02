@@ -20,8 +20,9 @@ const allowedOrigins = [
     "http://localhost:4000",
     "http://localhost:4001",
     "http://localhost:3000",
-    "http://localhost:192.168.1.16:4000",
-];
+    "http://192.168.1.16:4000",
+    "http://192.168.1.16:3000",
+    ];
 
 const corsOptions = {
     origin: function (origin: string | undefined, callback: (error: Error | null, allow?: boolean) => void) {
