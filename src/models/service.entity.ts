@@ -15,6 +15,9 @@ import { Category } from "./category.entity";
     @Column()
     description: string;
 
+    @Column()
+    shortDescription: string;
+
     @ManyToMany(() => Category)
     @JoinTable({
       name: "service_categories",

@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { AppDataSource } from '../config/data-source';
 import { Contact } from '../models/contact.entity';
+import axios from 'axios';
 
 export class ContactController {
     static async createContact(req: Request, res: Response): Promise<Response> {
@@ -10,37 +11,50 @@ export class ContactController {
             return res.status(400).json({ message: "All fields are required" });
         }
 
-        try {
+      // Vérification de reCAPTCHA
+      if (!recaptchaToken) {
+        return res.status(400).json({ message: "reCAPTCHA token is required" });
+      }
 
-           /* // Vérifiez le captcha avec le service reCAPTCHA de Google
-            const captchaResponse = await axios.post(`https://www.google.com/recaptcha/api/siteverify`, null, {
-                params: {
-                    secret: process.env.RECAPTCHA_SECRET_KEY,
-                    response: recaptchaToken
-                }
-            });
+      try {
 
-            console.log('Captcha response:', captchaResponse.data);
+        /* // Vérifiez le captcha avec le service reCAPTCHA de Google */
+        const captchaResponse = await axios.post(`https://www.google.com/recaptcha/api/siteverify`, null, {
+          params: {
+            secret: process.env.RECAPTCHA_SECRET_KEY,
+            response: recaptchaToken
+          }
+        });
 
-            if (!captchaResponse.data.success) {
-                return res.status(400).json({ message: "Captcha validation failed", errorCodes: captchaResponse.data['error-codes'] });
-            }*/
+        console.log('Captcha response:', captchaResponse.data);
 
-            const contactRepository = AppDataSource.getRepository(Contact);
-
-            const contact = new Contact();
-            contact.name = name;
-            contact.email = email;
-            contact.phonenumber = phonenumber;
-            contact.message = message;
-
-            await contactRepository.save(contact);
-
-            return res.status(201).json(contact);
-        } catch (error) {
-            console.error('Error creating contact:', error);
-            return res.status(500).json({ message: "Internal server error" });
+        if (!captchaResponse.data.success) {
+          return res.status(400).json({
+            message: "Captcha validation failed",
+            recaptchaValid: false,
+            errorCodes: captchaResponse.data["error-codes"],
+          });
         }
+
+        const contactRepository = AppDataSource.getRepository(Contact);
+
+        const contact = new Contact();
+        contact.name = name;
+        contact.email = email;
+        contact.phonenumber = phonenumber;
+        contact.message = message;
+
+        await contactRepository.save(contact);
+
+        return res.status(201).json({
+          message: "Contact created successfully",
+          recaptchaValid: true, // Ajout de cette propriété
+          contact,
+        });
+      } catch (error) {
+        console.error('Error creating contact:', error);
+        return res.status(500).json({ message: "Internal server error" });
+      }
     }
 
     static async getAllContacts(req: Request, res: Response): Promise<Response> {

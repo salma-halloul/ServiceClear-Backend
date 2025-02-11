@@ -52,27 +52,8 @@ app.use(helmet());
 app.use(errorHandler);
 app.use(routes);
 
-
-
-
 const PORT: number = Number(process.env.PORT) || 8000;
 const HOST: string = String(process.env.PGHOST);
-
-
-// Ensure uploads directory exists
-if (!fs.existsSync('uploads')) {
-  fs.mkdirSync('uploads');
-}
-
-// Endpoint to serve image files
-const uploadsDir = path.join(__dirname, '..', 'uploads');
-app.get('/uploads/:filename', (req, res) => {
-  const filename = req.params.filename;
-  const filePath = path.join(uploadsDir, filename);
-  res.sendFile(filePath);
-});
-
- 
 
 // Start the main server
 server.listen(PORT, async () => {

@@ -9,8 +9,12 @@ export class QuoteController {
     static async createQuote(req: Request, res: Response): Promise<Response> {
         const { name, email, phonenumber, message, recaptchaToken, servicesIds } = req.body;
 
-        if (!name || !email || !phonenumber || !message || !servicesIds) {
+        if (!name || !email || !phonenumber  ) {
             return res.status(400).json({ message: "All fields are required" });
+        }
+
+        if(!Array.isArray(servicesIds) || servicesIds.length === 0) {
+            return res.status(400).json({ message: "At least one service ID is required" });
         }
         const ServiceRepository = AppDataSource.getRepository(Service);
         

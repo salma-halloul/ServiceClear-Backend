@@ -2,12 +2,16 @@ import { Request, Response } from "express";
 import { Category } from "../models/category.entity";
 import { AppDataSource } from "../config/data-source";
 import { Quote } from "../models/quote.entity";
+import { Not } from "typeorm";
 
 export class CategoryController {
   static async createCategory(req: Request, res: Response): Promise<Response> {
-    const { name } = req.body;
+    const { name, icon } = req.body;
     if (!name) {
       return res.status(400).json({ message: "Name is required" });
+    }
+    if (!icon) {
+      return res.status(400).json({ message: "Icon is required" });
     }
 
     const categoryRepository = AppDataSource.getRepository(Category);
@@ -20,6 +24,8 @@ export class CategoryController {
     try {
       const newCategory = new Category();
       newCategory.name = name;
+      newCategory.icon = icon;
+
 
       const savedCategory = await categoryRepository.save(newCategory);
       return res.status(201).json(savedCategory);
@@ -41,11 +47,7 @@ export class CategoryController {
 
   static async updateCategory(req: Request, res: Response): Promise<Response> {
     const { id } = req.params;
-    const { name } = req.body;
-
-    if (!name) {
-      return res.status(400).json({ message: "Name is required" });
-    }
+    const { name, icon } = req.body;
 
     const categoryRepository = AppDataSource.getRepository(Category);
 
@@ -56,12 +58,19 @@ export class CategoryController {
         return res.status(404).json({ message: "Category not found" });
       }
 
-      const existingCategory = await categoryRepository.findOneBy({ name });
+      const existingCategory = await categoryRepository.findOne({
+        where: { name, id: Not(id) }
+      });
       if (existingCategory) {
         return res.status(400).json({ message: "Category name already exists" });
       }
 
-      category.name = name;
+      if (name){
+        category.name = name;
+      }
+      if (icon) {
+        category.icon = icon;
+      }
       const updatedCategory = await categoryRepository.save(category);
 
       return res.status(200).json(updatedCategory);

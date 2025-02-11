@@ -10,6 +10,8 @@ Router.get("/getall", authentification, ServiceController.getAllServices);
 Router.put("/update/:id", authentification, ServiceController.updateService);
 Router.get("/:id", ServiceController.getServiceById);
 Router.delete('/delete',  authentification, ServiceController.deleteMultipleServices);
+Router.post("/categories", ServiceController.getServicesByCategories);
+
 
 
 export { Router as serviceRouter };

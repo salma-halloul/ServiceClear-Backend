@@ -7,9 +7,9 @@ import { cacheService } from "../services/cache.service";
 
 export class ServiceController {
     static async createService(req: Request, res: Response): Promise<Response> {
-        const { name, description, categoryIds, images, visible} = req.body;
+        const { name, description, shortDescription, categoryIds, images, visible} = req.body;
 
-        if ( !name || !description || !categoryIds || !images || visible === undefined) {
+        if ( !name || !description || !shortDescription || !categoryIds || !images || visible === undefined) {
             return res.status(400).json({ message: "Name, description, and at least one category are required" });
         }
         
@@ -26,6 +26,7 @@ export class ServiceController {
             const service = new Service();
             service.name = name;
             service.description = description;
+            service.shortDescription = shortDescription;
             service.categories = categories;
             service.images = images;
             service.visible = visible;
@@ -52,11 +53,16 @@ export class ServiceController {
           }*/
     
           const serviceRepository = AppDataSource.getRepository(Service);
-          const visibleServices = await serviceRepository.find({ where: { visible: true } });
-    
+          const visibleServices = await serviceRepository.createQueryBuilder("service")
+          .leftJoinAndSelect("service.categories", "category")
+          .where("service.visible = :visible", { visible: true })
+          .getMany();
+
           // Save to cache
          // await cacheService.set(CACHE_KEY, visibleServices);
-    
+         console.log("Visible Services:", JSON.stringify(visibleServices, null, 2));
+
+
           return res.json(visibleServices);
         } catch (error) {
           console.error("Error fetching visible services:", error);
@@ -98,7 +104,7 @@ export class ServiceController {
     static async updateService(req: Request, res: Response): Promise<Response> {
         const {id} = req.params; 
 
-        const { name, description, categoryIds, images, visible } = req.body;
+        const { name, description, shortDescription, categoryIds, images, visible } = req.body;
     
         const ServiceRepository = AppDataSource.getRepository(Service);
         const categoryRepository = AppDataSource.getRepository(Category);
@@ -118,6 +124,9 @@ export class ServiceController {
             }
             if (description) {
                 service.description = description;
+            }
+            if (shortDescription) {
+                service.shortDescription = shortDescription;
             }
 
             if (categoryIds && categoryIds.length > 0) {
@@ -192,6 +201,34 @@ export class ServiceController {
             return res.status(500).json({ message: "Error deleting Services", error: errorMessage });
         }
     }
+
+    static async getServicesByCategories(req: Request, res: Response): Promise<Response> {
+        const { categoryIds } = req.body; 
+        console.log("categoryIds:", categoryIds);
+        const serviceRepository = AppDataSource.getRepository(Service);
+
+        if (!categoryIds.length) {
+            return res.json([]); // Retourner une liste vide si aucun ID fourni
+        }
+        if (!Array.isArray(categoryIds) || categoryIds.some(id => typeof id !== 'string')) {
+            return res.status(400).json({ message: "Invalid categoryIds format" });
+        }
+      
+        try {
+       
+
+            const services = await serviceRepository.createQueryBuilder("service")
+                .leftJoinAndSelect("service.categories", "category")
+                .where("category.id IN (:...categoryIds)", { categoryIds })
+                .getMany();
+
+          return res.json(services);
+        } catch (error) {
+          console.error("Error fetching services by categories:", error);
+          const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+          return res.status(500).json({ message: "Error fetching services by categories", error: errorMessage });
+        }
+      }
     
 
       
