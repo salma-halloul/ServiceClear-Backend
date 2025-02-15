@@ -7,6 +7,7 @@ import { Service } from "../models/service.entity";
 import { Review } from "../models/review.entity";
 import { Quote } from "../models/quote.entity";
 import { Contact } from "../models/contact.entity";
+import { Notification } from "../models/notification.entity";
 
 dotenv.config({ path: 'config.env' });
 
@@ -19,7 +20,7 @@ export const AppDataSource = new DataSource({
     database: process.env.DB_NAME,
     synchronize: true,
     logging: true,
-    entities: [User, Category, Service, Review, Quote, Contact], 
+    entities: [User, Category, Service, Review, Quote, Contact, Notification], 
     migrations: [__dirname + "/../migrations/*.js"],
     subscribers: [],
 });

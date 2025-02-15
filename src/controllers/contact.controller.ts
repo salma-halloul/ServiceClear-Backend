@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { AppDataSource } from '../config/data-source';
 import { Contact } from '../models/contact.entity';
+import { Notification } from '../models/notification.entity';
 import axios from 'axios';
 
 export class ContactController {
@@ -37,6 +38,8 @@ export class ContactController {
         }
 
         const contactRepository = AppDataSource.getRepository(Contact);
+        const notificationRepository = AppDataSource.getRepository(Notification);
+
 
         const contact = new Contact();
         contact.name = name;
@@ -45,6 +48,12 @@ export class ContactController {
         contact.message = message;
 
         await contactRepository.save(contact);
+
+        // Créer une notification
+        const notification = new Notification();
+        notification.message = `You have a new message from ${name}`;
+
+        await notificationRepository.save(notification);
 
         return res.status(201).json({
           message: "Contact created successfully",

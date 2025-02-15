@@ -6,6 +6,7 @@ import { serviceRouter } from '../routes/service.route';
 import { contactRouter } from '../routes/contact.route';
 import { quoteRouter } from '../routes/quote.route';
 import { reviewRouter } from '../routes/review.route';
+import { notificationRouter } from '../routes/notification.route';
 
 
 const router = express.Router();
@@ -17,6 +18,8 @@ router.use('/service', serviceRouter);
 router.use("/contact", contactRouter);
 router.use("/quote", quoteRouter);
 router.use("/review", reviewRouter);
+router.use("/notification", notificationRouter);
+
 
 
 
