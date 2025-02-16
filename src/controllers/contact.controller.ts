@@ -3,6 +3,7 @@ import { AppDataSource } from '../config/data-source';
 import { Contact } from '../models/contact.entity';
 import { Notification } from '../models/notification.entity';
 import axios from 'axios';
+import { ENotification } from '../models/enums/ENotification';
 
 export class ContactController {
     static async createContact(req: Request, res: Response): Promise<Response> {
@@ -52,6 +53,7 @@ export class ContactController {
         // Créer une notification
         const notification = new Notification();
         notification.message = `You have a new message from ${name}`;
+        notification.type = ENotification.contact;
 
         await notificationRepository.save(notification);
 

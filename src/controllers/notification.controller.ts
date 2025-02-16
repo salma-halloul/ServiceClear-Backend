@@ -50,6 +50,28 @@ class NotificationController {
       return res.status(500).json({ message: "Error marking notification as read", error });
     }
   }
+  
+  static async markAllAsRead(req: Request, res: Response): Promise<Response> {
+    const notificationRepository = AppDataSource.getRepository(Notification);
+
+    try {
+      const notifications = await notificationRepository.find({ where: { read: false } });
+      if (notifications.length === 0) {
+        return res.status(200).json({ message: "No unread notifications found" });
+      }
+
+      for (const notification of notifications) {
+        notification.read = true;
+      }
+
+      await notificationRepository.save(notifications);
+
+      return res.status(200).json({ message: "All unread notifications marked as read" });
+    } catch (error) {
+      console.error("Error marking all notifications as read:", error);
+      return res.status(500).json({ message: "Error marking all notifications as read", error });
+    }
+  }
 }
 
 export default NotificationController;

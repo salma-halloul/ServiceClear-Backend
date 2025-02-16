@@ -5,6 +5,7 @@ import { Quote } from '../models/quote.entity';
 import { Notification } from '../models/notification.entity';
 import { EQuote } from '../models/enums/EQuote';
 import axios from 'axios';
+import { ENotification } from '../models/enums/ENotification';
 
 
 export class QuoteController {
@@ -69,6 +70,8 @@ export class QuoteController {
 
       const notification = new Notification();
       notification.message = `You have a new quote by ${name}.`;
+      notification.type = ENotification.quote;
+      
 
       await notificationRepository.save(notification);
       console.log('Notification saved:', notification);

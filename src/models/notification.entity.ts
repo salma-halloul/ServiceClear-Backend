@@ -1,4 +1,5 @@
 import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { ENotification } from "./enums/ENotification";
 
 @Entity()
 export class Notification {
@@ -11,6 +12,14 @@ export class Notification {
     @CreateDateColumn()
     createdAt: Date;
 
-    @Column({default: false})
+    @Column({ default: false })
     read: boolean;
+
+    @Column({
+        type: "enum",
+        enum: ENotification,
+    })
+    type: ENotification;
+
+
 }
