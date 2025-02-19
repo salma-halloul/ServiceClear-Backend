@@ -4,6 +4,7 @@ import { User } from "../models/user.entity";
 import { encrypt } from "../helpers/helpers";
 import * as dotenv from "dotenv";
 import EmailService from "../helpers/sendEmail";
+import path from "path";
 
 dotenv.config({ path: 'config.env' });
 
@@ -150,9 +151,12 @@ export class AuthController {
 
       await userRepository.save(user);
 
-      const text = `Your password reset code is: ${resetCode}`;
       const subject = "Password Reset Code";
-      await EmailService.sendEmail(email, subject, text);
+      const templatePath = path.resolve(__dirname, '../templates/passwordReset.html');
+      const variables = { name: user.username, resetCode };
+
+      await EmailService.sendEmail(email, subject, templatePath, variables);
+
 
       return res.status(200).json({ message: "Password reset code sent successfully" });
     } catch (error) {

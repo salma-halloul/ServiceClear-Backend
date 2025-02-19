@@ -6,6 +6,9 @@ import { Notification } from '../models/notification.entity';
 import { EQuote } from '../models/enums/EQuote';
 import axios from 'axios';
 import { ENotification } from '../models/enums/ENotification';
+import sendEmail from '../helpers/sendEmail';
+import EmailService from '../helpers/sendEmail';
+import path from 'path';
 
 
 export class QuoteController {
@@ -72,9 +75,14 @@ export class QuoteController {
       notification.message = `You have a new quote by ${name}.`;
       notification.type = ENotification.quote;
       
-
       await notificationRepository.save(notification);
-      console.log('Notification saved:', notification);
+
+      const emailSubject = "New Quote Created";
+      const templatePath = path.resolve(__dirname, '../templates/createQuote.html');
+      const variables = { name };
+
+      await EmailService.sendEmail(email, emailSubject, templatePath, variables);
+
 
 
       return res.status(201).json(quote);
@@ -191,6 +199,23 @@ export class QuoteController {
       quote.status = status;
       await quoteRepository.save(quote);
 
+      let emailSubject;
+      let templatePath;
+
+      if (status === EQuote.APPROVED) {
+        emailSubject = "Your Quote Has Been Approved";
+        templatePath = path.resolve(__dirname, '../templates/quoteApproved.html');
+      } else if (status === EQuote.REJECTED) {
+        emailSubject = "Your Quote Has Been Rejected";
+        templatePath = path.resolve(__dirname, '../templates/quoteRejected.html');
+      }
+
+      if (emailSubject && templatePath) {
+        const variables = { name: quote.name, status };
+        await EmailService.sendEmail(quote.email, emailSubject, templatePath, variables);
+        console.log(`Email sent to: ${quote.email} with status: ${status}`);
+      }
+
       return res.status(200).json(quote);
     } catch (error) {
       return res.status(500).json({ message: "Error updating quote status", error });
@@ -198,10 +223,10 @@ export class QuoteController {
   }
 
   static async getMonthlyQuotesStatistics(req: Request, res: Response): Promise<Response> {
-        const quoteRepository = AppDataSource.getRepository(Quote);
-    
-        try {
-          const statistics = await quoteRepository
+    const quoteRepository = AppDataSource.getRepository(Quote);
+
+    try {
+      const statistics = await quoteRepository
             .createQueryBuilder("quote")
             .select("DATE_TRUNC('month', quote.createdAt)", "month")
             .addSelect("COUNT(*)", "count")
