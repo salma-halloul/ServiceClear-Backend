@@ -22,7 +22,8 @@ const allowedOrigins = [
     "http://localhost:3000",
     "http://192.168.1.16:4000",
     "http://192.168.1.16:3000",
-    "https://service-clear-frontend-admin.vercel.app"
+    "https://service-clear-frontend-admin.vercel.app",
+    "https://service-clear-frontend-client.vercel.app"
     ];
      console.log(allowedOrigins);
 
