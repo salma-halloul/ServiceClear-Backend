@@ -6,10 +6,8 @@ import { Notification } from '../models/notification.entity';
 import { EQuote } from '../models/enums/EQuote';
 import axios from 'axios';
 import { ENotification } from '../models/enums/ENotification';
-import sendEmail from '../helpers/sendEmail';
 import EmailService from '../helpers/sendEmail';
 import path from 'path';
-
 
 export class QuoteController {
   static async createQuote(req: Request, res: Response): Promise<Response> {
@@ -70,7 +68,6 @@ export class QuoteController {
       await quoteRepository.save(quote);
       console.log('Quote saved:', quote);
 
-
       const notification = new Notification();
       notification.message = `You have a new quote by ${name}.`;
       notification.type = ENotification.quote;
@@ -82,8 +79,6 @@ export class QuoteController {
       const variables = { name };
 
       await EmailService.sendEmail(email, emailSubject, templatePath, variables);
-
-
 
       return res.status(201).json(quote);
     } catch (error) {

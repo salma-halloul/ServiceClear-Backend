@@ -10,6 +10,7 @@ import routes from "./config/routes";
 import compression from 'compression';
 import helmet from 'helmet';
 import { test } from "./config/initialize";
+import rateLimit from 'express-rate-limit';
 
 dotenv.config({ path: 'config.env' });
 
@@ -51,10 +52,18 @@ app.use(express.urlencoded({ extended: true, limit: '100mb' }));
 app.use(compression());
 app.use(helmet());
 app.use(errorHandler);
+app.set('trust proxy', true);
 app.use(routes);
 
 const PORT: number = Number(process.env.PORT) || 8000;
 const HOST: string = String(process.env.PGHOST);
+
+const limiter = rateLimit({
+  windowMs: 1 * 60 * 1000, // 15 minutes
+  max: 100, // limit each IP to 100 requests per windowMs
+  message: 'Too many requests from this IP, please try again after 15 minutes'
+});
+app.use(limiter);
 
 // Start the main server
 server.listen(PORT, async () => {

@@ -5,10 +5,17 @@ import { encrypt } from "../helpers/helpers";
 import * as dotenv from "dotenv";
 import EmailService from "../helpers/sendEmail";
 import path from "path";
+import rateLimit from "express-rate-limit";
 
 dotenv.config({ path: 'config.env' });
 
 export class AuthController {
+
+  static loginLimiter = rateLimit({
+    windowMs: 1 * 60 * 1000, // 1 minute
+    max: 5, // maximum 5 attempts per minute
+    message: 'Too many login attempts from this IP, please try again after 1 minute',
+  });
 
   static async verifyToken(req: Request, res: Response): Promise<Response> {
     const { token } = req.body;
@@ -83,42 +90,69 @@ export class AuthController {
   static async login(req: Request, res: Response) {
     try {
       const { identifier, password } = req.body;
-
+  
       if (!identifier || !password) {
         return res
           .status(500)
           .json({ message: "Identifier and password required" });
       }
-
+  
       const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(identifier);
-        const username = /^[a-zA-Z0-9_]{1,15}$/.test(identifier);
-
+  
       const userRepository = AppDataSource.getRepository(User);
-
+  
       let user;
       if (isEmail) {
         user = await userRepository.findOne({ where: { email: identifier } });
-      } else if (username) {
-        user = await userRepository.findOne({ where: { username: identifier } });
-      }
-
+      } 
+  
       if (!user) {
-        return res.status(404).json({ message: "User not found" });
-      }
+        // Si l'utilisateur n'est pas trouvé, envoyer un email d'alerte
+        const ipAddress = Array.isArray(req.headers['x-forwarded-for'])
+          ? req.headers['x-forwarded-for'][0]
+          : req.headers['x-forwarded-for'] || req.ip || 'Unknown IP';
 
+        const timestamp = new Date().toISOString(); // Date et heure actuelles
+        const emailSubject = "Failed Login Attempt Notification";
+        const templatePath = path.resolve(__dirname, '../templates/failedLogin.html');
+        const email = "salmahalloul02@gmail.com"; // Adresse email de l'admin
+
+        const variables = { ipAddress, identifier, timestamp };
+
+        await EmailService.sendEmail(email, emailSubject, templatePath, variables);
+  
+        return res.status(404).json({ message: "Invalid credentials" });
+      }
+  
       const isPasswordValid = await encrypt.comparepassword(user.password, password);
       if (!isPasswordValid) {
-        return res.status(404).json({ message: "Invalid password" });
+        // Si les mots de passe ne correspondent pas, envoyer un email d'alerte
+        const ipAddress = Array.isArray(req.headers['x-forwarded-for'])
+          ? req.headers['x-forwarded-for'][0]
+          : req.headers['x-forwarded-for'] || req.ip || 'Unknown IP';
+
+        const timestamp = new Date().toISOString(); // Date et heure actuelles
+        const emailSubject = "Failed Login Attempt Notification";
+        const templatePath = path.resolve(__dirname, '../templates/failedLogin.html');
+        const email = "salmahalloul02@gmail.com"; // Adresse email de l'admin
+
+        const variables = { ipAddress, identifier, timestamp };
+
+        await EmailService.sendEmail(email, emailSubject, templatePath, variables);
+
+        return res.status(404).json({ message: "Invalid credentials" });
       }
-
+  
       const token = encrypt.generateToken({ id: user.id });
-
+  
       return res.status(200).json({ message: "Login successful", token });
     } catch (error) {
       console.error(error);
       return res.status(500).json({ message: "Internal server error" });
     }
-  }
+  }  
+
+
 
   static async sendPasswordResetCode(req: Request, res: Response): Promise<Response> {
     const { email } = req.body;

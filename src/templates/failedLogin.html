@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Failed Login Attempt Alert</title>
+</head>
+<body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+    <table width="100%" cellpadding="20" cellspacing="0" style="background-color: #f4f4f4; margin: 0 auto;">
+        <tr>
+            <td>
+                <table width="600" cellpadding="10" cellspacing="0" style="background-color: #fff; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                    <tr>
+                        <td style="background-color: #0044cc; color: #fff; text-align: center; border-radius: 8px 8px 0 0; padding: 10px;">
+                            <h2 style="margin: 0;">Failed Login Attempt Alert</h2>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <p>Dear Admin,</p>
+                            <p>We wanted to notify you about a failed login attempt on the system. The following details were provided by the user:</p>
+                            <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
+                                <tr>
+                                    <td style="padding: 8px; background-color: #f9f9f9; border: 1px solid #ddd;"><strong>IP Address</strong></td>
+                                    <td style="padding: 8px; background-color: #f9f9f9; border: 1px solid #ddd;">{{ipAddress}}</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 8px; background-color: #f9f9f9; border: 1px solid #ddd;"><strong>Identifier</strong></td>
+                                    <td style="padding: 8px; background-color: #f9f9f9; border: 1px solid #ddd;">{{identifier}}</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 8px; background-color: #f9f9f9; border: 1px solid #ddd;"><strong>Date & Time</strong></td>
+                                    <td style="padding: 8px; background-color: #f9f9f9; border: 1px solid #ddd;">{{timestamp}}</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 8px; background-color: #f9f9f9; border: 1px solid #ddd;"><strong>Reason</strong></td>
+                                    <td style="padding: 8px; background-color: #f9f9f9; border: 1px solid #ddd;">Incorrect credentials were provided.</td>
+                                </tr>
+                            </table>
+                            <p>If this was not a legitimate attempt, please review the account activity and consider further actions such as monitoring or blocking the IP address for additional suspicious activity.</p>
+                            <p>If you require further information, feel free to reach out.</p>
+                            <br>
+                            <p>Best regards,<br>
+                               Service Clear Admin
+                            </p>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>

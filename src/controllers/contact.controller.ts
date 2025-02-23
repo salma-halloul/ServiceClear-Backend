@@ -19,7 +19,6 @@ export class ContactController {
       }
 
       try {
-
         /* // Vérifiez le captcha avec le service reCAPTCHA de Google */
         const captchaResponse = await axios.post(`https://www.google.com/recaptcha/api/siteverify`, null, {
           params: {
@@ -40,7 +39,6 @@ export class ContactController {
 
         const contactRepository = AppDataSource.getRepository(Contact);
         const notificationRepository = AppDataSource.getRepository(Notification);
-
 
         const contact = new Contact();
         contact.name = name;
