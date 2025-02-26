@@ -14,7 +14,11 @@ export class AuthController {
   static loginLimiter = rateLimit({
     windowMs: 1 * 60 * 1000, // 1 minute
     max: 5, // maximum 5 attempts per minute
-    message: 'Too many login attempts from this IP, please try again after 1 minute',
+    handler: (req: Request, res: Response) => {
+      res.status(429).json({
+        message: 'Too many login attempts, please contact the administrator'
+      });
+    }
   });
 
   static async verifyToken(req: Request, res: Response): Promise<Response> {

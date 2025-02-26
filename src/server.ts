@@ -2,8 +2,6 @@ import express, { Application } from "express";
 import dotenv from "dotenv";
 import cors from "cors";
 import http from 'http';
-import fs from 'fs';
-import path from 'path';
 import { AppDataSource } from "./config/data-source";
 import { errorHandler } from "./middlewares/error.middleware";
 import routes from "./config/routes";
@@ -52,7 +50,7 @@ app.use(express.urlencoded({ extended: true, limit: '100mb' }));
 app.use(compression());
 app.use(helmet());
 app.use(errorHandler);
-app.set('trust proxy', true);
+app.set('trust proxy', false);
 app.use(routes);
 
 const PORT: number = Number(process.env.PORT) || 8000;

@@ -10,18 +10,27 @@ export const authentification = (
   res: Response,
   next: NextFunction
 ) => {
-  const header = req.headers.authorization;
-  if (!header) {
-    return res.status(401).json({ message: "Unauthorized" });
+  try {
+    const header = req.headers.authorization;
+    if (!header) {
+      return res.status(401).json({ message: "Unauthorized: No token provided" });
+    }
+
+    const token = header.split(" ")[1];
+    if (!token) {
+      return res.status(401).json({ message: "Unauthorized: No token found" });
+    }
+
+    const decode = jwt.verify(token, JWT_SECRET);
+    (req as any)["currentUser"] = decode;
+    next();
+  } catch (error) {
+    if (error instanceof jwt.TokenExpiredError) {
+      return res.status(401).json({ message: "Unauthorized: Token expired" });
+    }
+    if (error instanceof jwt.JsonWebTokenError) {
+      return res.status(401).json({ message: "Unauthorized: Invalid token" });
+    }
+    return res.status(500).json({ message: "Internal server error" });
   }
-  const token = header.split(" ")[1];
-  if (!token) {
-    return res.status(401).json({ message: "Unauthorized" });
-  }
-  const decode = jwt.verify(token, JWT_SECRET);
-  if (!decode) {
-    return res.status(401).json({ message: "Unauthorized" });
-  }
-  (req as any)["currentUser"] = decode;
- next();
 };
